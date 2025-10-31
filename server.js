@@ -5,6 +5,12 @@ const path = require('path');
 const port = process.env.PORT || 3000;
 const hostname = '0.0.0.0';
 
+const data = [
+    { id: 1, name: 'Alice' },
+    { id: 2, name: 'Bob' },
+    { id: 3, name: 'Charlie' }
+]
+
 const server = http.createServer((req, res) => {
     let filePath = ''
 
@@ -26,6 +32,10 @@ const server = http.createServer((req, res) => {
             res.end(data);
         }
     });
+    if (req.method === 'GET' && req.url === '/data') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(data));
+    }
 
 });
 

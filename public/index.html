@@ -8,5 +8,15 @@
 <body>
     <h1>Welcome to Our Website</h1>
     <p>This is the home page. Feel free to explore our content and learn more about us.</p>
+    <script>
+        fetch('/data')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Data fetched from /data endpoint:', data);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    </script>
 </body>
 </html>
