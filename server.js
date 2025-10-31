@@ -5,13 +5,55 @@ const path = require('path');
 const port = process.env.PORT || 3000;
 const hostname = '0.0.0.0';
 
-const data = [
+let products = [
     { id: 1, name: 'Alice' },
     { id: 2, name: 'Bob' },
     { id: 3, name: 'Charlie' }
 ]
 
 const server = http.createServer((req, res) => {
+    // API to get data
+    if (req.method === 'GET' && req.url === '/data') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(products));
+        return
+    }
+
+    if (req.method === 'GET' && req.url.startsWith('/data/')) {
+        const id = parseInt(req.url.split('/')[2]);
+        const singleData = products.find(item => item.id === id);
+        if (singleData) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(singleData));
+        } else {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Data not found' }));
+        }
+        return;
+    }
+
+    if (req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', () => {
+            try {
+                const newProduct = JSON.parse(body);
+                newProduct.id = products.length + 1;
+                products = [newProduct, ...products];
+
+                res.writeHead(201, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(newProduct));
+            } catch (err) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Invalid JSON format' }));
+            }
+        });
+        return;
+    }
+
+
     let filePath = ''
 
     if (req.url === '/') {
@@ -20,6 +62,8 @@ const server = http.createServer((req, res) => {
         filePath = path.join(__dirname, 'public', 'about.html');
     } else if (req.url === '/contact') {
         filePath = path.join(__dirname, 'public', 'contact.html');
+    } else {
+        filePath = path.join(__dirname, 'public', req.url);
     }
 
     fs.readFile(filePath, (err, data) => {
@@ -32,10 +76,7 @@ const server = http.createServer((req, res) => {
             res.end(data);
         }
     });
-    if (req.method === 'GET' && req.url === '/data') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(data));
-    }
+
 
 });
 
