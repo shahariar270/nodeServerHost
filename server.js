@@ -31,7 +31,7 @@ const server = http.createServer((req, res) => {
         }
         return;
     }
-
+    //need to rnd about POST API
     if (req.method === 'POST') {
         let body = '';
         req.on('data', chunk => {
@@ -53,7 +53,21 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    //delete endpoint
+    if (req.method === 'DELETE' && req.url.startsWith('/data/')) {
+        const id = parseInt(req.url.split('/')[2]);
+        const index = products.some(item => item.id === id);
 
+        if (index) {
+            products = products.filter(p => p.id !== id);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Deleted successfully', id }));
+        } else {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Item not found' }));
+        }
+        return;
+    }
     let filePath = ''
 
     if (req.url === '/') {
