@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { json } = require('stream/consumers');
 
 const port = process.env.PORT || 3000;
 const hostname = '0.0.0.0';
@@ -68,6 +69,37 @@ const server = http.createServer((req, res) => {
         }
         return;
     }
+    //data put endpoint
+
+    if (req.method === 'PUT' && req.url.startsWith('/data/')) {
+        const id = parseInt(req.url.split('/')[2]);
+        let body = '';
+
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', () => {
+            try {
+                const index = products.findIndex(item => item.id === id);
+                const updated = JSON.parse(body);
+                if (index !== -1) {
+                    products[index] = { id, ...updated }
+
+                    res.writeHead(200, { 'content-type': 'application/json' })
+                    res.end(JSON.stringify(products[index]))
+                } else {
+                    res.writeHead(404, { 'content-type': 'application/pain-text' })
+                    res.end(JSON.stringify({ massage: 'data is not found' }))
+                }
+            } catch (err) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Invalid JSON format' }));
+            }
+        });
+        return;
+    }
+
     let filePath = ''
 
     if (req.url === '/') {

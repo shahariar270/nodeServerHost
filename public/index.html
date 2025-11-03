@@ -11,13 +11,18 @@
     <h1>Welcome to Our Website</h1>
     <p>This is the home page. Feel free to explore our content and learn more about us.</p>
     <script>
-        const dataPost = fetch('http://127.0.0.1:3000/data/1', {
-            method: 'DELETE',
+        const dataPost = fetch('data/2', {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
+            body: JSON.stringify({
+                name: 'alu'
+            })
+
         }).then(res => res.json())
-            .then(data => console.log('POST Response:', data));
+            .then(data => console.log('put Response:', data));
+
         fetch('/data')
             .then(res => res.json())
             .then(data => console.log('GET Response:', data));
